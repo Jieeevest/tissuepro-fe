@@ -17,7 +17,7 @@ export default function Cart() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (!isAuthenticated) { navigate('/login', { replace: true }); return }
+    if (!isAuthenticated) { navigate('/login?next=/cart', { replace: true }); return }
     fetch()
   }, [isAuthenticated])
 

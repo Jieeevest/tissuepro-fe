@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ShieldCheck, Mail, Lock, AlertCircle, ArrowRight, Microscope, Award, CheckCircle } from 'lucide-react'
+import { ShieldCheck, Mail, Lock, AlertCircle, ArrowRight, Microscope, Award, ShoppingCart } from 'lucide-react'
 import { useAuth } from '@/store/useAuth'
 import { API_BASE } from '@/constants/apiUrls'
+import { Logo } from '@/components/Logo'
 
 const API_URL = API_BASE
 
@@ -16,6 +17,8 @@ export default function Login() {
 
   const login = useAuth((state) => state.login)
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const nextUrl = searchParams.get('next')
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -44,7 +47,7 @@ export default function Login() {
       }
 
       login(data.data.accessToken, data.data.refreshToken, data.data.user)
-      const dest = data.data.user?.role === 'admin' ? '/cms' : '/'
+      const dest = data.data.user?.role === 'admin' ? '/cms' : (nextUrl ?? '/')
       navigate(dest, { replace: true })
     } catch {
       setErrorMsg('Tidak dapat terhubung ke server. Coba lagi.')
@@ -71,8 +74,8 @@ export default function Login() {
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
             className="text-4xl font-light text-gray-500 leading-tight mb-8"
           >
-            Portal manajemen untuk <br />
-            <span className="text-gray-900 font-semibold">peneliti dan profesional laboratorium</span> di Indonesia.
+            Solusi reagen laboratorium untuk <br />
+            <span className="text-gray-900 font-semibold">peneliti dan profesional histologi</span> di Indonesia.
           </motion.h2>
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
@@ -83,6 +86,7 @@ export default function Login() {
               { icon: <ShieldCheck className="w-5 h-5 text-primary" />, label: 'ISO Certified Manufacturing' },
               { icon: <Microscope className="w-5 h-5 text-primary" />, label: 'Laboratory Grade Reagents' },
               { icon: <Award className="w-5 h-5 text-primary" />, label: 'For Research & Diagnostic Labs' },
+              { icon: <ShoppingCart className="w-5 h-5 text-primary" />, label: 'Pesan langsung, pengiriman terjamin' },
             ].map((f, i) => (
               <div key={i} className="flex items-center gap-3 bg-black/[0.04] border border-black/[0.07] px-4 py-3 rounded-2xl">
                 {f.icon}
@@ -107,11 +111,14 @@ export default function Login() {
             <div className="absolute inset-0 bg-gradient-to-tr from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
             <div className="mb-8">
+              <Link to="/">
+                <Logo className="h-10 w-auto mb-5" variant="horizontal" />
+              </Link>
               <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-                Admin Login
+                Masuk ke Akun
               </h2>
               <p className="text-sm text-gray-500">
-                Masuk ke portal manajemen TissuePro Tech ID.
+                Akses riwayat pesanan dan pembelian produk TissuePro.
               </p>
             </div>
 
@@ -139,7 +146,7 @@ export default function Login() {
                   <input
                     type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
                     className="w-full bg-gray-50 border border-black/[0.08] text-gray-900 text-sm rounded-2xl pl-12 pr-4 py-3.5 outline-none focus:border-primary/50 focus:bg-white focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-gray-300"
-                    placeholder="admin@tissuepro.id"
+                    placeholder="email@institusi.ac.id"
                   />
                 </div>
               </div>
@@ -183,8 +190,8 @@ export default function Login() {
             </div>
 
             <div className="mt-4 flex items-center justify-center gap-2 text-xs font-medium text-gray-400 tracking-widest uppercase relative z-10">
-              <CheckCircle className="h-3 w-3" />
-              <span>Akses Khusus Tim Internal TissuePro</span>
+              <ShieldCheck className="h-3 w-3" />
+              <span>Data Anda aman dan terenkripsi</span>
             </div>
           </div>
         </motion.div>

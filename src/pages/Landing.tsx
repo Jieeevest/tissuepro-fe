@@ -16,8 +16,12 @@ import {
   Lightbulb,
   Leaf,
   ShoppingCart,
+  LogOut,
+  KeyRound,
+  Package,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { Avatar } from "@/components/Avatar";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/store/useLanguage";
@@ -72,7 +76,7 @@ const CAROUSEL_LABELS = [
 export default function Landing() {
   const { lang } = useLanguage();
   const t = (key: string) => tr(lang, key);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
   const { items: cartItems, addingProductIds, addItem, fetch: fetchCart } = useCart();
   const cartCount = cartItems.reduce((s, i) => s + i.quantity, 0);
 
@@ -81,6 +85,8 @@ export default function Landing() {
   }, [isAuthenticated]);
 
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [avatarOpen, setAvatarOpen] = useState(false);
+  const avatarRef = useRef<HTMLDivElement>(null);
   const [scrolled, setScrolled] = useState(false);
   const [carouselIdx, setCarouselIdx] = useState(0);
   const [allProducts, setAllProducts] = useState<ProductItem[]>([]);
@@ -109,6 +115,17 @@ export default function Landing() {
     window.addEventListener("scroll", handler);
     return () => window.removeEventListener("scroll", handler);
   }, []);
+
+  useEffect(() => {
+    if (!avatarOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (avatarRef.current && !avatarRef.current.contains(e.target as Node)) {
+        setAvatarOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [avatarOpen]);
 
   useEffect(() => {
     const timer = setInterval(
@@ -212,7 +229,7 @@ export default function Landing() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await fetch(API_URLS.cms.inquirySubmit, {
+      await fetch(API_URLS.public.inquirySubmit, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -230,7 +247,7 @@ export default function Landing() {
   };
 
   const handleAddToCart = (productId: string) => {
-    if (!isAuthenticated) { window.location.href = '/login'; return; }
+    if (!isAuthenticated) { window.location.href = '/login?next=/cart'; return; }
     addItem(productId);
   };
 
@@ -271,21 +288,62 @@ export default function Landing() {
                     </span>
                   )}
                 </Link>
-                <Link to="/orders" className="ms-1 px-3 py-2 rounded-xl hover:text-gray-900 hover:bg-black/[0.04] transition-all text-sm font-semibold">
-                  Pesanan
-                </Link>
+                <div ref={avatarRef} className="relative ms-1">
+                  <button
+                    onClick={() => setAvatarOpen((v) => !v)}
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-black/[0.04] transition-all"
+                  >
+                    <Avatar name={user?.full_name || user?.email} size="md" />
+                    <span className="text-sm font-semibold text-gray-700 max-w-[100px] truncate">
+                      {user?.full_name?.split(" ")[0] || user?.email}
+                    </span>
+                  </button>
+                  {avatarOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-52 bg-white border border-black/[0.08] rounded-2xl shadow-lg py-1.5 z-50">
+                      <div className="px-4 py-2.5 border-b border-black/[0.06] mb-1">
+                        <p className="text-xs font-black text-gray-900 truncate">{user?.full_name || "—"}</p>
+                        <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+                      </div>
+                      <Link
+                        to="/orders"
+                        onClick={() => setAvatarOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-black/[0.04] transition-colors"
+                      >
+                        <Package className="w-4 h-4 text-gray-400" />
+                        Riwayat Pesanan
+                      </Link>
+                      <Link
+                        to="/change-password"
+                        onClick={() => setAvatarOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-black/[0.04] transition-colors"
+                      >
+                        <KeyRound className="w-4 h-4 text-gray-400" />
+                        Ubah Password
+                      </Link>
+                      <div className="border-t border-black/[0.06] mt-1 pt-1">
+                        <button
+                          onClick={() => { setAvatarOpen(false); logout(); }}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Keluar
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={scrollToForm}
+                  className="ms-1 px-5 py-2 bg-primary text-white rounded-xl hover:opacity-90 transition-opacity font-bold"
+                >
+                  {t("nav.consultation")}
+                </button>
               </>
             ) : (
-              <Link to="/login" className="ms-1 px-3 py-2 rounded-xl hover:text-gray-900 hover:bg-black/[0.04] transition-all text-sm font-semibold">
-                Masuk
+              <Link to="/login" className="ms-1 px-5 py-2 bg-primary text-white rounded-xl hover:opacity-90 transition-opacity font-bold">
+                Masuk / Daftar
               </Link>
             )}
-            <button
-              onClick={scrollToForm}
-              className="ms-1 px-5 py-2 bg-primary text-white rounded-xl hover:opacity-90 transition-opacity font-bold"
-            >
-              {t("nav.consultation")}
-            </button>
           </div>
 
           <div className="flex items-center gap-1 md:hidden">
@@ -301,7 +359,7 @@ export default function Landing() {
               </Link>
             )}
             <button
-              onClick={() => setMobileOpen(true)}
+              onClick={() => setMobileOpen((v) => !v)}
               className="p-2 text-gray-500 hover:text-gray-900"
             >
               <Menu className="w-5 h-5" />
@@ -325,6 +383,15 @@ export default function Landing() {
                 <X className="w-5 h-5" />
               </button>
             </div>
+            {isAuthenticated && user && (
+              <div className="flex items-center gap-3 mb-8 pb-6 border-b border-black/[0.06]">
+                <Avatar name={user.full_name || user.email} size="lg" />
+                <div>
+                  <p className="text-base font-black text-gray-900">{user.full_name || "—"}</p>
+                  <p className="text-sm text-gray-400">{user.email}</p>
+                </div>
+              </div>
+            )}
             <div className="flex flex-col gap-4 text-2xl font-black">
               <a href="#produk" onClick={() => setMobileOpen(false)} className="text-gray-700 hover:text-gray-900">
                 {t("nav.products")}
@@ -336,17 +403,28 @@ export default function Landing() {
                 {t("nav.contact")}
               </a>
               {isAuthenticated ? (
-                <Link to="/orders" onClick={() => setMobileOpen(false)} className="text-gray-700 hover:text-gray-900">
-                  Pesanan Saya
-                </Link>
+                <>
+                  <Link to="/orders" onClick={() => setMobileOpen(false)} className="text-gray-700 hover:text-gray-900">
+                    Pesanan Saya
+                  </Link>
+                  <Link to="/change-password" onClick={() => setMobileOpen(false)} className="text-gray-700 hover:text-gray-900">
+                    Ubah Password
+                  </Link>
+                  <button onClick={scrollToForm} className="text-start text-primary">
+                    {t("nav.consultation")} →
+                  </button>
+                  <button
+                    onClick={() => { setMobileOpen(false); logout(); }}
+                    className="text-start text-red-500 font-black"
+                  >
+                    Keluar
+                  </button>
+                </>
               ) : (
-                <Link to="/login" onClick={() => setMobileOpen(false)} className="text-gray-700 hover:text-gray-900">
-                  Masuk / Daftar
+                <Link to="/login" onClick={() => setMobileOpen(false)} className="text-primary font-black">
+                  Masuk / Daftar →
                 </Link>
               )}
-              <button onClick={scrollToForm} className="text-start text-primary">
-                {t("nav.consultation")} →
-              </button>
             </div>
           </motion.div>
         )}

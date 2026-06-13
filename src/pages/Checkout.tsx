@@ -181,7 +181,7 @@ export default function Checkout() {
   const itemsWithoutPrice = items.filter(i => !i.product.price)
 
   useEffect(() => {
-    if (!isAuthenticated) { navigate('/login', { replace: true }); return }
+    if (!isAuthenticated) { navigate('/login?next=/checkout', { replace: true }); return }
     fetchCart()
 
     const existing = document.getElementById('midtrans-snap')

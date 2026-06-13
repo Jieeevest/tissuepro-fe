@@ -2,10 +2,11 @@ export const API_BASE = import.meta.env.VITE_API_URL ?? 'https://api.tissuepro.i
 
 export const API_URLS = {
   public: {
-    products:    `${API_BASE}/api/public/products`,
-    pipeline:    `${API_BASE}/api/public/pipeline`,
-    caseStudies: `${API_BASE}/api/public/case-studies`,
-    areas:       `${API_BASE}/api/public/application-areas`,
+    products:      `${API_BASE}/api/public/products`,
+    pipeline:      `${API_BASE}/api/public/pipeline`,
+    caseStudies:   `${API_BASE}/api/public/case-studies`,
+    areas:         `${API_BASE}/api/public/application-areas`,
+    inquirySubmit: `${API_BASE}/api/submit/inquiry`,
   },
   auth: {
     login:    `${API_BASE}/api/auth/login`,
@@ -70,7 +71,7 @@ export const API_URLS = {
     orders:          `${API_BASE}/api/cms/orders`,
     order:           (id: string) => `${API_BASE}/api/cms/orders/${id}`,
     orderStatus:     (id: string) => `${API_BASE}/api/cms/orders/${id}/status`,
-    inquirySubmit:   `${API_BASE}/api/submit/inquiry`,
+    inquirySubmit:   `${API_BASE}/api/submit/inquiry`, // same endpoint as public.inquirySubmit — kept for CMS backward compat
     mediaUpload:     `${API_BASE}/api/cms/media/upload`,
     mediaDelete:     (path: string) => `${API_BASE}/api/cms/media/${encodeURIComponent(path)}`,
   },

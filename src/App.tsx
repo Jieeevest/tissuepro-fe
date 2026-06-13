@@ -9,6 +9,7 @@ import Cart from '@/pages/Cart'
 import Checkout from '@/pages/Checkout'
 import Orders from '@/pages/Orders'
 import OrderDetail from '@/pages/OrderDetail'
+import ChangePassword from '@/pages/ChangePassword'
 import Articles from '@/pages/Articles'
 import ArticleDetail from '@/pages/ArticleDetail'
 import StaticPage from '@/pages/StaticPage'
@@ -77,6 +78,7 @@ export default function App() {
           <Route path="/checkout"        element={<Checkout />} />
           <Route path="/orders"          element={<Orders />} />
           <Route path="/orders/:id"      element={<OrderDetail />} />
+          <Route path="/change-password" element={<ChangePassword />} />
         </Route>
 
         {/* CMS — admin only */}
