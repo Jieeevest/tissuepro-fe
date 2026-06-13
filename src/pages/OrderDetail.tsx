@@ -36,11 +36,6 @@ const PAYMENT_STATUS_LABEL: Record<string, string> = {
   refunded: 'Dikembalikan',
 }
 
-declare global {
-  interface Window {
-    snap: { pay: (token: string, options: Record<string, unknown>) => void }
-  }
-}
 
 function formatRp(n: number) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n)
